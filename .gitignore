@@ -1,0 +1,22 @@
+*.log
+*.swp
+*~
+*.pbxuser
+*.pbxtree
+*.pbxbtree
+.DS_Store
+*.metadata
+.actionScriptProperties
+*/.settings
+
+workspace/ZaaMulti/bin/ZaaMulti.swc
+workspace/CardLib/bin/CardLib.swc
+
+#ignore .metadata
+**/*/.metadata/**/*
+#ignore ignore bin files
+**/*/bin/**/*
+#ignore bin-debug
+**/*/bin-debug/*
+#ignore html-template
+**/*/html-template/**/*
