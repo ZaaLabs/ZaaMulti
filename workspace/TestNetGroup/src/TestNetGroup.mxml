@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   xmlns:s="library://ns.adobe.com/flex/spark" 
+			   xmlns:mx="library://ns.adobe.com/flex/mx" minWidth="955" minHeight="600"
+			   applicationComplete="onPreinitialize()">
+	
+	<fx:Script>
+		<![CDATA[
+			import flash.utils.getTimer;
+			
+			protected var _connection:NetConnection;
+			protected var _group:NetGroup;
+			
+			protected function onPreinitialize():void
+			{
+				_connection = new NetConnection();
+				_connection.addEventListener(NetStatusEvent.NET_STATUS, onNetStatus);
+				_connection.connect("rtmfp:");
+				
+				stage.addEventListener(MouseEvent.CLICK, onMouseClick);
+			}
+			
+			protected function onMouseClick(event:Event):void
+			{
+				_group.post({"message":"Mouse was clicked", "time":getTimer()});
+			}
+			
+			protected function setupGroup():void
+			{
+				var groupSpec:GroupSpecifier = new GroupSpecifier("SomeGroup");
+				groupSpec.postingEnabled = true;
+				groupSpec.ipMulticastMemberUpdatesEnabled = true;
+				groupSpec.addIPMulticastAddress("224.0.0.49:30355");
+				
+				_group = new NetGroup(_connection, groupSpec.groupspecWithAuthorizations());
+				_group.addEventListener(NetStatusEvent.NET_STATUS, onNetStatus);
+			}
+			
+			protected function onNetStatus(event:NetStatusEvent):void
+			{
+				log("<< Received " + event.info.code + " >>");
+				
+				switch(event.info.code)
+				{
+					case "NetConnection.Connect.Success":
+						setupGroup();
+						break;
+					
+					case "NetGroup.Connect.Success":
+						log("sending connect message");
+						_group.post({"message":"I just heard I'm in the group", "time":getTimer()});
+						break;
+					
+					case "NetGroup.Neighbor.Connect":
+						log("sending neighbor message");
+						_group.post({"message":"I just heard my neighbors connected", "time":getTimer()});
+						break;
+					
+					case "NetGroup.Posting.Notify":
+						log(event.info.message.message);
+						break;
+				}
+			}
+			
+			protected function broadcastMessage(message:String):void
+			{
+				_group.post(message);
+			}
+			
+			protected function log(message:String):void
+			{
+				output.text += "\r\n" + message;
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	
+	<s:TextArea id="output" width="100%" height="100%" editable="false" />
+	
+</s:Application>
