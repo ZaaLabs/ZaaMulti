@@ -6,6 +6,7 @@
 			   minWidth="955" minHeight="600">
 	<fx:Script>
 		<![CDATA[
+			import com.zaalabs.multi.discover.DiscoveredServerVO;
 			import com.zaalabs.multi.discover.SearchingSocket;
 			import com.zaalabs.multi.discover.SearchingSocketEvent;
 			
@@ -24,27 +25,39 @@
 			protected function onPreinitialize(event:FlexEvent):void
 			{
 				socket = new SearchingSocket("TestApplication");
-				socket.addEventListener(SearchingSocketEvent.SERVER_FOUND, onSocketFound, false, 0, true);
+				socket.addEventListener(SearchingSocketEvent.SERVER_FOUND, onServerFound, false, 0, true);
 				socket.addEventListener(IOErrorEvent.IO_ERROR, onIOError, false, 0, true);
 				socket.addEventListener(SecurityErrorEvent.SECURITY_ERROR, onSecurityError, false, 0, true);
 				socket.addEventListener(ProgressEvent.SOCKET_DATA, onSocketData, false, 0, true);
+				socket.addEventListener(Event.CLOSE, onSocketClose, false, 0, true);
+				socket.addEventListener(Event.CONNECT, onSocketConnect, false, 0, true);
 			}
 
-			protected function onSocketFound(event:SearchingSocketEvent):void
+			protected function onServerFound(event:SearchingSocketEvent):void
 			{
 				discoveredServers = socket.servers;
+				log("Server Found");
 			}
 			
 			protected function onConnectClick(event:MouseEvent):void
 			{
 				if (serverList.selectedItem != null)
 				{
-					socket.connectToServer(serverList.selectedItem);
+					var server:DiscoveredServerVO = DiscoveredServerVO(serverList.selectedItem);
+					log("Connecting to " + server.name + " server");
+					Security.loadPolicyFile("xmlsocket://"+server.ipAddress+":8083");
+					socket.connectToServer(server);
 				}
+			}
+			
+			protected function onRefreshClick(event:MouseEvent):void
+			{
+				discoveredServers = [];
+				socket.search("TestApplication");
 			}
 
 
-			protected function onSocketData():void
+			protected function onSocketData(event:Event):void
 			{
 				log("Receiving Text =======================\r\n");
 				log(socket.readUTF());
@@ -66,6 +79,18 @@
 				log("IO Error: " + event.text);
 			}
 
+
+			protected function onSocketClose(event:Event):void
+			{
+				log("Socket connection closed.");
+			}
+
+
+			protected function onSocketConnect(event:Event):void
+			{
+				log("Socket connection connected.");
+			}
+
 		]]>
 	</fx:Script>
 	<fx:Declarations>
@@ -77,5 +102,6 @@
 			itemRenderer="DiscoveredServerItemRenderer"/>
 	<s:Button left="10" bottom="10" width="113" label="Connect" click="onConnectClick(event)"/>
 	<s:TextArea id="output" left="256" right="10" top="10" bottom="42"/>
+	<s:Button left="131" bottom="10" width="117" label="Refresh" click="onRefreshClick(event)"/>
 	
 </s:Application>

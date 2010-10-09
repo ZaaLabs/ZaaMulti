@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <s:WindowedApplication xmlns:fx="http://ns.adobe.com/mxml/2009" 
 					   xmlns:s="library://ns.adobe.com/flex/spark" 
-					   xmlns:mx="library://ns.adobe.com/flex/mx">
+					   xmlns:mx="library://ns.adobe.com/flex/mx"
+					   closing="onClosing(event)">
 
 	<fx:Script>
 		<![CDATA[
 			import com.zaalabs.multi.PolicyServer;
 			import com.zaalabs.multi.discover.DiscoverableServerSocket;
+			import com.zaalabs.utils.NetworkUtil;
 			
 			protected var server:DiscoverableServerSocket;
 			protected var policyServer:PolicyServer;
@@ -14,10 +16,11 @@
 			protected function onConnectClick(event:MouseEvent):void
 			{
 				server = new DiscoverableServerSocket(applicationInput.text, nameInput.text);
-				server.bind(9999, "127.0.0.1");
+				server.bind(8989, NetworkUtil.getIpAddress(NetworkInfo.networkInfo.findInterfaces()));
 				policyServer = new PolicyServer(server.localPort);
 				
 				server.addEventListener(ServerSocketConnectEvent.CONNECT, onServerSocketConnect, false, 0, true);
+				server.listen();
 			}
 
 			protected function onServerSocketConnect(event:ServerSocketConnectEvent):void
@@ -34,6 +37,11 @@
 			protected function onSocketClose(event:Event):void
 			{
 				output.text += "Open Socket Closed.\r\n";
+			}
+			
+			protected function onClosing(event:Event):void
+			{
+				server.close();
 			}
 
 		]]>
