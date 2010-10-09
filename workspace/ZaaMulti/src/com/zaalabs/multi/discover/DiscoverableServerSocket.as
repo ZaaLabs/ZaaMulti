@@ -1,5 +1,6 @@
 package com.zaalabs.multi.discover
 {
+	import flash.events.ErrorEvent;
 	import flash.events.Event;
 	import flash.events.NetStatusEvent;
 	import flash.events.ServerSocketConnectEvent;
@@ -18,12 +19,12 @@ package com.zaalabs.multi.discover
 		protected var _connection:NetConnection;
 		protected var _group:NetGroup;
 		
+		protected var _hasSentAnnouncement:Object;
 		protected var _currentConnections:Number;
 		protected var _application:String;
 		protected var _name:String;
 		
 		public var maxConnections:Number;
-		
 		
 		
 		public function DiscoverableServerSocket(application:String, name:String, maxNumConnections:Number = 0)
@@ -36,6 +37,7 @@ package com.zaalabs.multi.discover
 		protected function init(application:String, name:String, maxNumConnections:Number):void
 		{
 			maxConnections = maxNumConnections;
+			_hasSentAnnouncement = false;
 			_application = application;
 			_currentConnections = 0;
 			_name = name;
@@ -65,14 +67,22 @@ package com.zaalabs.multi.discover
 		{
 			if (message.type == DiscoveryMessage.TYPE_FIND_SERVERS)
 			{
-				dispatchServerInfo();
+				broadcastMessage(DiscoveryMessage.TYPE_SERVER_INFO);
+			}
+			else if (message.type == DiscoveryMessage.TYPE_NAME_COLLISION && message.name == _name && message.application == _application)
+			{
+				handleServerNameCollision();
+			}
+			else if (message.type == DiscoveryMessage.TYPE_NEW_SERVER_ANNOUNCE && message.name == _name && message.application == _application)
+			{
+				broadcastMessage(DiscoveryMessage.TYPE_NAME_COLLISION);
 			}
 		}
 		
-		protected function dispatchServerInfo():void
+		protected function broadcastMessage(type:String):void
 		{
 			var info:DiscoveryMessage = new DiscoveryMessage();
-			info.type = DiscoveryMessage.TYPE_SERVER_INFO;
+			info.type = type;
 			info.application = _application;
 			info.name = _name;
 			info.ipAddress = localAddress;
@@ -82,6 +92,31 @@ package com.zaalabs.multi.discover
 			_group.post(info);
 		}
 		
+		protected function handleServerNameCollision():void
+		{
+			var event:ErrorEvent = new ErrorEvent(ErrorEvent.ERROR);
+			event.text = "Another server is already in the netgroup with the given name";
+			dispatchEvent(new ErrorEvent(ErrorEvent.ERROR));
+			
+			_group.close();
+			_connection.close();
+		}
+		
+		protected function checkForNameCollision():void
+		{
+			if (!_hasSentAnnouncement)
+			{
+				_hasSentAnnouncement = true;
+				broadcastMessage(DiscoveryMessage.TYPE_NEW_SERVER_ANNOUNCE);
+			}
+		}
+		
+		
+		
+		/*****************************************************
+		 * Event Handlers
+		 *****************************************************/
+		
 		
 		
 		protected function onNetStatus(event:NetStatusEvent):void
@@ -90,6 +125,10 @@ package com.zaalabs.multi.discover
 			{
 				case NetStatusCodes.NETCONNECTION_CONNECT_SUCCESS:
 					setupGroup();
+					break;
+				
+				case NetStatusCodes.NETGROUP_NEIGHBOUR_CONNECT:
+					checkForNameCollision();
 					break;
 				
 				case NetStatusCodes.NETGROUP_POSTING_NOTIFY:
@@ -124,11 +163,26 @@ package com.zaalabs.multi.discover
 		}
 		
 		
+		/*****************************************************
+		 * Getters / Setters
+		 *****************************************************/
+		
 		
 		public function get currentConnections():Number
 		{
 			return _currentConnections;
 		}
+
+		public function get name():String
+		{
+			return _name;
+		}
+
+		public function set name(value:String):void
+		{
+			_name = value;
+		}
+
 		
 	}
 }
