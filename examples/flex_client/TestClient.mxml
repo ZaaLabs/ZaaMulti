@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   xmlns:s="library://ns.adobe.com/flex/spark" 
+			   xmlns:mx="library://ns.adobe.com/flex/mx"
+			   preinitialize="onPreinitialize(event)"
+			   minWidth="955" minHeight="600">
+	<fx:Script>
+		<![CDATA[
+			import com.zaalabs.multi.discover.DiscoveredServerVO;
+			import com.zaalabs.multi.discover.SearchingSocket;
+			import com.zaalabs.multi.discover.SearchingSocketEvent;
+			
+			import mx.collections.ArrayCollection;
+			import mx.events.FlexEvent;
+			
+			[Bindable]
+			protected var discoveredServers:Array;
+			protected var socket:SearchingSocket;
+			
+			protected function log(message:String):void
+			{
+				output.text += message + "\r\n";
+			}
+
+			protected function onPreinitialize(event:FlexEvent):void
+			{
+				socket = new SearchingSocket("TestApplication");
+				socket.addEventListener(SearchingSocketEvent.SERVER_FOUND, onServerFound, false, 0, true);
+				socket.addEventListener(IOErrorEvent.IO_ERROR, onIOError, false, 0, true);
+				socket.addEventListener(SecurityErrorEvent.SECURITY_ERROR, onSecurityError, false, 0, true);
+				socket.addEventListener(ProgressEvent.SOCKET_DATA, onSocketData, false, 0, true);
+				socket.addEventListener(Event.CLOSE, onSocketClose, false, 0, true);
+				socket.addEventListener(Event.CONNECT, onSocketConnect, false, 0, true);
+			}
+
+			protected function onServerFound(event:SearchingSocketEvent):void
+			{
+				discoveredServers = socket.servers;
+				log("Server Found");
+			}
+			
+			protected function onConnectClick(event:MouseEvent):void
+			{
+				if (serverList.selectedItem != null)
+				{
+					var server:DiscoveredServerVO = DiscoveredServerVO(serverList.selectedItem);
+					log("Connecting to " + server.name + " server");
+					Security.loadPolicyFile("xmlsocket://"+server.ipAddress+":8083");
+					socket.connectToServer(server);
+				}
+			}
+			
+			protected function onRefreshClick(event:MouseEvent):void
+			{
+				discoveredServers = [];
+				socket.search("TestApplication");
+			}
+
+
+			protected function onSocketData(event:Event):void
+			{
+				log("Receiving Text =======================\r\n");
+				log(socket.readUTF());
+				log("End Received Text =======================\r\n");
+				socket.close();
+				
+				socket.search("TestApplication");
+			}
+
+
+			protected function onSecurityError(event:SecurityErrorEvent):void
+			{
+				log("Security Error: " + event.text);
+			}
+
+
+			protected function onIOError(event:IOErrorEvent):void
+			{
+				log("IO Error: " + event.text);
+			}
+
+
+			protected function onSocketClose(event:Event):void
+			{
+				log("Socket connection closed.");
+			}
+
+
+			protected function onSocketConnect(event:Event):void
+			{
+				log("Socket connection connected.");
+			}
+
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	
+	<s:List id="serverList" left="10" top="10" bottom="42" width="238"
+			dataProvider="{new ArrayCollection(discoveredServers)}"
+			itemRenderer="DiscoveredServerItemRenderer"/>
+	<s:Button left="10" bottom="10" width="113" label="Connect" click="onConnectClick(event)"/>
+	<s:TextArea id="output" left="256" right="10" top="10" bottom="42"/>
+	<s:Button left="131" bottom="10" width="117" label="Refresh" click="onRefreshClick(event)"/>
+	
+</s:Application>
