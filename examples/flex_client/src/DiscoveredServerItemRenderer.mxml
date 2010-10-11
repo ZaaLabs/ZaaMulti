@@ -1,3 +1,11 @@
+<!--
+    ZaaMulti
+    Copyright (c) 2010 ZaaLabs, Ltd.
+    For more information see http://www.zaalabs.com
+    
+    This file is licensed under the terms of the MIT license, which is included
+    in the license.txt file at the root directory of this library.
+-->
 <?xml version="1.0" encoding="utf-8"?>
 <s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009" 
 				xmlns:s="library://ns.adobe.com/flex/spark" 

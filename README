@@ -5,6 +5,12 @@
  / /_| (_| | (_| | |  | | |_| | | |_| |
 /_____\__,_|\__,_|_|  |_|\__,_|_|\__|_|
 
-ZaaMulti is a library and set of Utilities for building multi device, multi screen development in ActionScript 3.
+ZaaMulti is a library and set of utilities for building multi device, multi screen development on the flash platform.  ZaaMulti is licensed under the MIT license (located in license.txt) and is developed and maintained by ZaaLabs, Ltd (www.zaalabs.com).
 
-License is located in License.txt.
+Current authors:
+Nate Beck
+    @jnbeck
+    blog.natebeck.net
+    
+Aaron Boushley 
+    @boushley
