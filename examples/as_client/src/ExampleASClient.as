@@ -32,8 +32,8 @@ package
         
         protected function onReady(event:Event):void
         {
-			setupOutput();
-			setupConnection();
+            setupOutput();
+            setupConnection();
         }
         
         protected function setupOutput():void
