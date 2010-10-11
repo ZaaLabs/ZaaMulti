@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+
+    ZaaMulti
+    Copyright (c) 2010 ZaaLabs, Ltd.
+    For more information see http://www.zaalabs.com
+    
+    This file is licensed under the terms of the MIT license, which is included
+    in the license.txt file at the root directory of this library.
+
+-->
+
+<s:WindowedApplication xmlns:fx="http://ns.adobe.com/mxml/2009" 
+                       xmlns:s="library://ns.adobe.com/flex/spark" 
+                       xmlns:mx="library://ns.adobe.com/flex/mx"
+                       closing="onClosing(event)" viewSourceURL="srcview/index.html">
+    
+    <fx:Script>
+        <![CDATA[
+            import com.zaalabs.multi.PolicyServer;
+            import com.zaalabs.multi.discover.DiscoverableServerSocket;
+            import com.zaalabs.utils.NetworkUtil;
+            
+            [Bindable] protected var server:DiscoverableServerSocket;
+            
+            protected var policyServer:PolicyServer;
+            
+            protected function onConnectClick(event:MouseEvent):void
+            {
+                server = new DiscoverableServerSocket(applicationInput.text, nameInput.text);
+                server.bind(8989, NetworkUtil.getIpAddress(NetworkInfo.networkInfo.findInterfaces()));
+                policyServer = new PolicyServer(server.localPort);
+                
+                server.addEventListener(ServerSocketConnectEvent.CONNECT, onServerSocketConnect, false, 0, true);
+                server.listen();
+            }
+            
+            protected function onServerSocketConnect(event:ServerSocketConnectEvent):void
+            {
+                event.socket.addEventListener(Event.CLOSE, onSocketClose, false, 0, true);
+                
+                output.text += "Inbound socket connection received. Sending message...\r\n";
+                
+                event.socket.writeUTF("Welcome to the test server.");
+                event.socket.flush();
+            }
+            
+            
+            protected function onSocketClose(event:Event):void
+            {
+                output.text += "Open Socket Closed.\r\n";
+            }
+            
+            protected function onClosing(event:Event):void
+            {
+                server.close();
+            }
+            
+        ]]>
+    </fx:Script>
+    
+    <fx:Declarations>
+        <!-- Place non-visual elements (e.g., services, value objects) here -->
+    </fx:Declarations>
+    
+    <s:Button left="109" top="97" width="128" label="Connect" 
+              enabled="{server.bound}" click="onConnectClick(event)"/>
+    <s:TextInput id="nameInput" left="109" top="49" 
+                 text="ServerName"/>
+    <s:Label left="10" top="53" width="115" height="20" 
+             fontSize="14" fontWeight="bold" 
+             text="Server Name: "/>
+    <s:TextInput id="applicationInput" left="111" top="10" 
+                 text="TestApplication"/>
+    <s:Label left="10" top="15" fontSize="14" fontWeight="bold" 
+             text="Application: "/>
+    
+    <s:TextArea id="output" left="245" right="10" top="6" bottom="10" editable="false"/>
+    
+</s:WindowedApplication>
