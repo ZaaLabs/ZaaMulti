@@ -32,12 +32,7 @@ package
         
         protected function onReady(event:Event):void
         {
-            setup();
-        }
-        
-        protected function setup():void
-        {
-            setupOutput();
+			setupOutput();
             setupConnection();
         }
         
