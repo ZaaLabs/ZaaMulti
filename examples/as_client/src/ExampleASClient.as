@@ -33,7 +33,7 @@ package
         protected function onReady(event:Event):void
         {
 			setupOutput();
-            setupConnection();
+			setupConnection();
         }
         
         protected function setupOutput():void
