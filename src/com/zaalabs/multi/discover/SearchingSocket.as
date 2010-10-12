@@ -29,10 +29,10 @@ package com.zaalabs.multi.discover
 		{
 			super();
 			
-			search(application);
+			setup(application);
 		}
 		
-		public function search(application:String):void
+		protected function setup(application:String):void
 		{
 			if (!_connection)
 			{
@@ -45,6 +45,13 @@ package com.zaalabs.multi.discover
 			
 			_servers = [];
 			_application = application;
+		}
+		
+		public function search(application:String):void
+		{
+			setup(application);
+			
+			searchForServers();
 		}
 		
 		public function connectToServer(server:DiscoveredServerVO):void
