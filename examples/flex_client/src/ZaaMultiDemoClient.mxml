@@ -15,7 +15,7 @@
                preinitialize="onPreinitialize(event)"  viewSourceURL="srcview/index.html">
     <fx:Script>
         <![CDATA[
-            import com.zaalabs.multi.discover.DiscoveredServerVO;
+            import com.zaalabs.multi.discover.DiscoveredServer;
             import com.zaalabs.multi.discover.SearchingSocket;
             import com.zaalabs.multi.discover.SearchingSocketEvent;
             
@@ -47,7 +47,7 @@
             {
                 if (serverList.selectedItem != null)
                 {
-                    var server:DiscoveredServerVO = DiscoveredServerVO(serverList.selectedItem);
+                    var server:DiscoveredServer = DiscoveredServer(serverList.selectedItem);
                     log("Connecting to " + server.name + " server");
                     Security.loadPolicyFile("xmlsocket://"+server.ipAddress+":8083");
                     socket.connectToServer(server);
