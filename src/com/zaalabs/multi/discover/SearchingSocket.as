@@ -54,7 +54,7 @@ package com.zaalabs.multi.discover
 			searchForServers();
 		}
 		
-		public function connectToServer(server:DiscoveredServerVO):void
+		public function connectToServer(server:DiscoveredServer):void
 		{
 			super.connect(server.ipAddress, int(server.port));
 			
@@ -62,13 +62,13 @@ package com.zaalabs.multi.discover
 			_connection.close();
 		}
 		
-		public function hasServerInfo(info:DiscoveredServerVO):Boolean
+		public function hasServerInfo(info:DiscoveredServer):Boolean
 		{
-			var server:DiscoveredServerVO;
+			var server:DiscoveredServer;
 			
 			for (var i:int = 0; i < _servers.length; i++)
 			{
-				server = _servers[i] as DiscoveredServerVO;
+				server = _servers[i] as DiscoveredServer;
 				
 				if (server.name == info.name && server.ipAddress == info.ipAddress && server.port == info.port)
 					return true;
@@ -98,7 +98,7 @@ package com.zaalabs.multi.discover
 		{
 			if (message.type == DiscoveryMessage.TYPE_SERVER_INFO && message.application == _application)
 			{
-				var serverInfo:DiscoveredServerVO = new DiscoveredServerVO();
+				var serverInfo:DiscoveredServer = new DiscoveredServer();
 				serverInfo.application = message.application;
 				serverInfo.ipAddress = message.ipAddress;
 				serverInfo.port = message.port;

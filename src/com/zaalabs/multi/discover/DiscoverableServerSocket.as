@@ -32,8 +32,6 @@ package com.zaalabs.multi.discover
 		
 		public var maxConnections:Number;
 		
-		
-		
 		public function DiscoverableServerSocket(application:String, name:String, maxNumConnections:Number = 0)
 		{
 			super();
@@ -54,8 +52,6 @@ package com.zaalabs.multi.discover
 			
 			addEventListener(ServerSocketConnectEvent.CONNECT, onSocketConnect);
 		}
-		
-		
 		
 		
 		protected function setupGroup():void
@@ -131,9 +127,8 @@ package com.zaalabs.multi.discover
 			event.target.removeEventListener(Event.CLOSE, onSocketClose);
 		}
 		
-		
-		
-		public function get currentConnections():Number
+
+        public function get currentConnections():Number
 		{
 			return _currentConnections;
 		}

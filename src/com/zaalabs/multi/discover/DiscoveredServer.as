@@ -8,7 +8,7 @@
  ******************************************************************************/
 package com.zaalabs.multi.discover
 {
-	public class DiscoveredServerVO
+	public class DiscoveredServer
 	{
 		public var ipAddress:String;
 		public var port:String;
